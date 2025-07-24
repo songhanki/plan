@@ -1,4 +1,4 @@
-# 회원 관리 API
+# 회원 관리 API 
 
 Spring Boot와 MyBatis를 사용한 간단한 CRUD 회원 관리 REST API입니다.
 
