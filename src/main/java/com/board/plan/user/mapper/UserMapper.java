@@ -1,6 +1,6 @@
-package com.board.plan.mapper;
+package com.board.plan.user.mapper;
 
-import com.board.plan.model.User;
+import com.board.plan.user.model.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

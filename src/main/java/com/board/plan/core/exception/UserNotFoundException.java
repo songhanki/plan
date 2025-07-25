@@ -1,4 +1,4 @@
-package com.board.plan.exception;
+package com.board.plan.core.exception;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {

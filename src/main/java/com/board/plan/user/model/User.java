@@ -1,4 +1,4 @@
-package com.board.plan.model;
+package com.board.plan.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

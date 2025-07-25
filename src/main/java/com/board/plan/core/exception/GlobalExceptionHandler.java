@@ -1,4 +1,4 @@
-package com.board.plan.exception;
+package com.board.plan.core.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

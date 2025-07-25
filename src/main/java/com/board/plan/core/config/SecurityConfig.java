@@ -1,4 +1,4 @@
-package com.board.plan.config;
+package com.board.plan.core.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

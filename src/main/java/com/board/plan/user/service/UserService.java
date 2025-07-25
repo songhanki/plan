@@ -1,10 +1,10 @@
-package com.board.plan.service;
+package com.board.plan.user.service;
 
-import com.board.plan.dto.UserDto;
-import com.board.plan.exception.DuplicateEntryException;
-import com.board.plan.exception.UserNotFoundException;
-import com.board.plan.mapper.UserMapper;
-import com.board.plan.model.User;
+import com.board.plan.user.dto.UserDto;
+import com.board.plan.core.exception.DuplicateEntryException;
+import com.board.plan.core.exception.UserNotFoundException;
+import com.board.plan.user.mapper.UserMapper;
+import com.board.plan.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;

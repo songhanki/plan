@@ -1,4 +1,4 @@
-package com.board.plan.dto;
+package com.board.plan.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
