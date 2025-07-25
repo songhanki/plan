@@ -5,7 +5,7 @@ Spring Boot와 MyBatis를 사용한 간단한 CRUD 회원 관리 REST API입니�
 ## 기술 스택
 
 - **언어**: Java 21
-- **프레임워크**: Spring Boot 3.5.3
+- **프레임워크**: Spring Boot 3.2.5
 - **빌드 도구**: Gradle
 - **데이터베이스**: MySQL 8.0
 - **ORM**: MyBatis
