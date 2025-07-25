@@ -1,3 +1,10 @@
+# Branch 설명
+ - **basic** : 초기 세팅진행
+ - **main** : 서버배포용
+ - **develop** : 개발용
+## Branch 사용
+ - 추후기입예정
+
 # 회원 관리 API 
 
 Spring Boot와 MyBatis를 사용한 간단한 CRUD 회원 관리 REST API입니다.
