@@ -5,41 +5,41 @@
 <mapper namespace="com.board.plan.member.mapper.MemberMapper">
 
     <!-- 사용자 생성 -->
-    <insert id="insertMember" parameterType="Member" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertMember" parameterType="MemberDto" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO members (email, password, name, phone_number, created_at, updated_at)
         VALUES (#{email}, #{password}, #{name}, #{phoneNumber}, NOW(), NOW())
     </insert>
 
     <!-- 모든 사용자 조회 -->
-    <select id="findAllMembers" resultType="Member">
+    <select id="findAllMembers" resultType="MemberDto">
         SELECT id, email, password, name, phone_number, created_at, updated_at
         FROM members
         ORDER BY created_at DESC
     </select>
 
     <!-- ID로 사용자 조회 -->
-    <select id="findMemberById" parameterType="Long" resultType="Member">
+    <select id="findMemberById" parameterType="Long" resultType="MemberDto">
         SELECT id, email, password, name, phone_number, created_at, updated_at
         FROM members
         WHERE id = #{id}
     </select>
 
     <!-- 이메일로 사용자 조회 -->
-    <select id="findMemberByEmail" parameterType="String" resultType="Member">
+    <select id="findMemberByEmail" parameterType="String" resultType="MemberDto">
         SELECT id, email, password, name, phone_number, created_at, updated_at
         FROM members
         WHERE email = #{email}
     </select>
 
     <!-- 전화번호로 사용자 조회 -->
-    <select id="findMemberByPhoneNumber" parameterType="String" resultType="Member">
+    <select id="findMemberByPhoneNumber" parameterType="String" resultType="MemberDto">
         SELECT id, email, password, name, phone_number, created_at, updated_at
         FROM members
         WHERE phone_number = #{phoneNumber}
     </select>
 
     <!-- 사용자 정보 수정 -->
-    <update id="updateMember" parameterType="Member">
+    <update id="updateMember" parameterType="MemberDto">
         UPDATE members
         SET email = #{email},
             password = #{password},
