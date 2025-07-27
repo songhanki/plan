@@ -194,3 +194,39 @@ curl -X GET http://localhost:8080/api/users
 - **IDE**: IntelliJ IDEA / Eclipse
 - **MySQL**: 8.0+
 - **Gradle**: 8.x 
+
+
+## application.properties 에 암호화 값 사용방법 
+
+Jasypt를 사용하여 데이터베이스 접속 정보를 암호화하는 방법을 설명드리겠습니다.
+
+1. 먼저 build.gradle에 Jasypt 의존성을 추가하겠습니다:
+2. Jasypt 설정을 위한 Configuration 클래스를 생성하겠습니다:
+3. 이제 암호화할 값을 생성하기 위한 테스트 클래스를 만들겠습니다:
+4. 테스트를 실행하여 암호화된 값을 얻은 후, application.properties 파일을 수정하겠습니다:
+사용 방법을 설명드리겠습니다:
+
+1. 먼저 테스트 클래스를 실행하여 username과 password의 암호화된 값을 얻습니다:
+   ```bash
+   ./gradlew test --tests JasyptTest
+   ```
+
+2. 출력된 암호화된 값을 `application.properties`에 적용합니다:
+   - `ENC(암호화된_username_값)` 부분을 실제 암호화된 username으로 교체
+   - `ENC(암호화된_password_값)` 부분을 실제 암호화된 password로 교체
+
+3. 실제 운영 환경에서는 암호화 키(`jasypt.encryptor.password`)를 환경 변수로 관리하는 것이 좋습니다:
+   ```bash
+   export JASYPT_ENCRYPTOR_PASSWORD=your-secret-key
+   ```
+   그리고 application.properties에서는:
+   ```properties
+   jasypt.encryptor.password=${JASYPT_ENCRYPTOR_PASSWORD}
+   ```
+
+주의사항:
+1. 암호화 키는 절대로 소스 코드나 설정 파일에 직접 포함하지 마세요.
+2. 운영 환경에서는 환경 변수나 시스템 프로퍼티를 통해 암호화 키를 제공하세요.
+3. 암호화된 값은 매번 다르게 생성되지만, 같은 키로 복호화하면 동일한 원본 값을 얻을 수 있습니다.
+
+이제 데이터베이스 접속 정보가 암호화되어 보안이 강화되었습니다. 추가로 필요한 설정이나 질문이 있으시다면 말씀해 주세요.
