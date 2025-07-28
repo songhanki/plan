@@ -53,7 +53,7 @@ CREATE TABLE role_permissions (
 -- --- 회원 관리 테이블 (role_id 추가) ---
 -- 회원 정보 테이블
 CREATE TABLE members ( 
-	member_id VARCHAR(36) PRIMARY KEY NOT NULL COMMENT '회원 고유 ID (UUID)', 
+	member_id VARCHAR(36) PRIMARY KEY NOT NULL COMMENT '회원 고유 ID (UUID) (user-XXX 형식)', 
 	email VARCHAR(255) NOT NULL UNIQUE COMMENT '회원 이메일 (로그인 ID)', 
 	password VARCHAR(255) NOT NULL COMMENT '해시된 비밀번호', 
 	name VARCHAR(100) NOT NULL COMMENT '회원 이름', 
@@ -205,49 +205,49 @@ INSERT INTO role_permissions (role_id, permission_id, created_at, updated_at) VA
 -- 비밀번호는 'password'를 bcrypt로 해싱했다고 가정 (실제로는 애플리케이션에서 해싱)
 -- member_id는 UUID를 사용하여 임의의 값을 생성
 INSERT INTO members (member_id, email, password, name, nickname, phone_number, gender, date_of_birth, profile_image_url, status, role_id, created_at, updated_at, last_login_at) VALUES
-('user-admin-001', 'admin@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '관리자', '시스템관리자', '01011112222', 'M', '1980-01-01', NULL, 'ACTIVE', 'role-admin', NOW(), NOW(), NOW()),
-('user-manager-002', 'manager@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '김팀장', '팀장님', '01033334444', 'F', '1985-05-10', NULL, 'ACTIVE', 'role-manager', NOW(), NOW(), NOW()),
-('user-user-003', 'user1@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '이사용자', '사용자1', '01055556666', 'M', '1990-11-20', NULL, 'ACTIVE', 'role-user', NOW(), NOW(), NOW()),
-('user-user-004', 'user2@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '박사원', '사원2', '01077778888', 'F', '1992-03-15', NULL, 'ACTIVE', 'role-user', NOW(), NOW(), NOW());
+('user-01', 'admin@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '관리자', '시스템관리자', '01011112222', 'M', '1980-01-01', NULL, 'ACTIVE', 'role-admin', NOW(), NOW(), NOW()),
+('user-02', 'manager@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '김팀장', '팀장님', '01033334444', 'F', '1985-05-10', NULL, 'ACTIVE', 'role-manager', NOW(), NOW(), NOW()),
+('user-03', 'user1@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '이사용자', '사용자1', '01055556666', 'M', '1990-11-20', NULL, 'ACTIVE', 'role-user', NOW(), NOW(), NOW()),
+('user-04', 'user2@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '박사원', '사원2', '01077778888', 'F', '1992-03-15', NULL, 'ACTIVE', 'role-user', NOW(), NOW(), NOW());
 
 -- member_addresses 테이블 데이터
 INSERT INTO member_addresses (address_id, member_id, address_type, postal_code, address_main, address_detail, is_default, created_at, updated_at) VALUES
-('addr-001', 'user-user-003', 'HOME', '06130', '서울 강남구 테헤란로 123', '아크로빌딩 101호', TRUE, NOW(), NOW()),
-('addr-002', 'user-user-003', 'WORK', '08503', '서울 금천구 가산디지털1로 100', 'B동 502호', FALSE, NOW(), NOW()),
-('addr-003', 'user-manager-002', 'HOME', '03030', '서울 종로구 삼일대로 10', '하늘채 아파트 101동 101호', TRUE, NOW(), NOW());
+('addr-001', 'user-03', 'HOME', '06130', '서울 강남구 테헤란로 123', '아크로빌딩 101호', TRUE, NOW(), NOW()),
+('addr-002', 'user-03', 'WORK', '08503', '서울 금천구 가산디지털1로 100', 'B동 502호', FALSE, NOW(), NOW()),
+('addr-003', 'user-02', 'HOME', '03030', '서울 종로구 삼일대로 10', '하늘채 아파트 101동 101호', TRUE, NOW(), NOW());
 
 -- member_login_logs 테이블 데이터
 INSERT INTO member_login_logs (member_id, login_at, ip_address, user_agent, login_success, failure_reason) VALUES
-('user-admin-001', NOW(), '192.168.1.10', 'Mozilla/5.0 ... (Chrome)', TRUE, NULL),
-('user-user-003', NOW() - INTERVAL 1 HOUR, '10.0.0.5', 'Mozilla/5.0 ... (Firefox)', TRUE, NULL),
-('user-user-003', NOW() - INTERVAL 30 MINUTE, '10.0.0.5', 'Mobile Safari', FALSE, 'Incorrect password'),
-('user-manager-002', NOW() - INTERVAL 2 HOUR, '172.16.0.20', 'Edge', TRUE, NULL);
+('user-01', NOW(), '192.168.1.10', 'Mozilla/5.0 ... (Chrome)', TRUE, NULL),
+('user-03', NOW() - INTERVAL 1 HOUR, '10.0.0.5', 'Mozilla/5.0 ... (Firefox)', TRUE, NULL),
+('user-03', NOW() - INTERVAL 30 MINUTE, '10.0.0.5', 'Mobile Safari', FALSE, 'Incorrect password'),
+('user-02', NOW() - INTERVAL 2 HOUR, '172.16.0.20', 'Edge', TRUE, NULL);
 
 -- schedules 테이블 데이터
 INSERT INTO schedules (schedule_id, member_id, title, description, start_time, end_time, all_day, location, event_type, color_code, is_recurring, recurrence_rule, status, created_at, updated_at) VALUES
-('sched-001', 'user-admin-001', '주간 업무 보고 회의', '각 팀별 주간 업무 보고 및 다음 주 계획 논의', '2025-08-01 10:00:00', '2025-08-01 11:00:00', FALSE, '본사 대회의실', 'MEETING', '#FF5733', FALSE, NULL, 'CONFIRMED', NOW(), NOW()),
-('sched-002', 'user-user-003', '개인 건강 검진', '매년 정기 건강 검진', '2025-08-05 09:00:00', '2025-08-05 12:00:00', FALSE, '강남 건강검진센터', 'PERSONAL', '#33FF57', FALSE, NULL, 'CONFIRMED', NOW(), NOW()),
-('sched-003', 'user-manager-002', '신제품 아이디어 브레인스토밍', '새로운 제품 아이디어 도출', '2025-08-10 14:00:00', '2025-08-10 16:00:00', FALSE, '온라인 (Zoom)', 'MEETING', '#3357FF', FALSE, NULL, 'CONFIRMED', NOW(), NOW());
+('sched-001', 'user-01', '주간 업무 보고 회의', '각 팀별 주간 업무 보고 및 다음 주 계획 논의', '2025-08-01 10:00:00', '2025-08-01 11:00:00', FALSE, '본사 대회의실', 'MEETING', '#FF5733', FALSE, NULL, 'CONFIRMED', NOW(), NOW()),
+('sched-002', 'user-03', '개인 건강 검진', '매년 정기 건강 검진', '2025-08-05 09:00:00', '2025-08-05 12:00:00', FALSE, '강남 건강검진센터', 'PERSONAL', '#33FF57', FALSE, NULL, 'CONFIRMED', NOW(), NOW()),
+('sched-003', 'user-02', '신제품 아이디어 브레인스토밍', '새로운 제품 아이디어 도출', '2025-08-10 14:00:00', '2025-08-10 16:00:00', FALSE, '온라인 (Zoom)', 'MEETING', '#3357FF', FALSE, NULL, 'CONFIRMED', NOW(), NOW());
 
 -- schedule_participants 테이블 데이터
 INSERT INTO schedule_participants (schedule_id, member_id, participation_status, invited_at, responded_at, is_organizer) VALUES
-('sched-001', 'user-admin-001', 'ATTENDING', NOW(), NOW(), TRUE),
-('sched-001', 'user-manager-002', 'ATTENDING', NOW(), NOW(), FALSE),
-('sched-001', 'user-user-003', 'ATTENDING', NOW(), NOW(), FALSE),
-('sched-003', 'user-manager-002', 'ATTENDING', NOW(), NOW(), TRUE),
-('sched-003', 'user-user-003', 'ATTENDING', NOW(), NOW(), FALSE),
-('sched-003', 'user-user-004', 'DECLINED', NOW(), NOW() + INTERVAL 5 MINUTE, FALSE);
+('sched-001', 'user-01', 'ATTENDING', NOW(), NOW(), TRUE),
+('sched-001', 'user-02', 'ATTENDING', NOW(), NOW(), FALSE),
+('sched-001', 'user-03', 'ATTENDING', NOW(), NOW(), FALSE),
+('sched-003', 'user-02', 'ATTENDING', NOW(), NOW(), TRUE),
+('sched-003', 'user-03', 'ATTENDING', NOW(), NOW(), FALSE),
+('sched-003', 'user-04', 'DECLINED', NOW(), NOW() + INTERVAL 5 MINUTE, FALSE);
 
 -- leave_requests 테이블 데이터 (승인 전 상태)
 INSERT INTO leave_requests (request_id, member_id, leave_type, start_date, end_date, request_reason, status, request_date, created_at, updated_at) VALUES
-('req-001', 'user-user-003', '연차', '2025-08-20', '2025-08-22', '개인 연차 사용', '신청', NOW(), NOW(), NOW()),
-('req-002', 'user-user-004', '병가', '2025-08-25', '2025-08-25', '독감 증상으로 인한 병가', '신청', NOW(), NOW(), NOW()),
-('req-003', 'user-user-003', '경조휴가', '2025-09-01', '2025-09-03', '가족 결혼식 참석', '신청', NOW(), NOW(), NOW());
+('req-001', 'user-03', '연차', '2025-08-20', '2025-08-22', '개인 연차 사용', '신청', NOW(), NOW(), NOW()),
+('req-002', 'user-04', '병가', '2025-08-25', '2025-08-25', '독감 증상으로 인한 병가', '신청', NOW(), NOW(), NOW()),
+('req-003', 'user-03', '경조휴가', '2025-09-01', '2025-09-03', '가족 결혼식 참석', '신청', NOW(), NOW(), NOW());
 
 -- leave_approvals 테이블 데이터 (승인/반려 상태)
 INSERT INTO leave_approvals (approval_id, request_id, approver_id, approval_status, approval_reason, approval_date, created_at, updated_at) VALUES
-('app-001', 'req-001', 'user-manager-002', '승인', '승인되었습니다.', NOW(), NOW(), NOW()),
-('app-002', 'req-002', 'user-manager-002', '반려', '업무 공백이 예상되어 반려합니다. 일정 조정 후 재신청 바랍니다.', NOW(), NOW(), NOW());
+('app-001', 'req-001', 'user-02', '승인', '승인되었습니다.', NOW(), NOW(), NOW()),
+('app-002', 'req-002', 'user-02', '반려', '업무 공백이 예상되어 반려합니다. 일정 조정 후 재신청 바랍니다.', NOW(), NOW(), NOW());
 
 -- leave_requests 테이블 업데이트 (approval_id 참조)
 UPDATE leave_requests SET approval_id = 'app-001', status = '승인' WHERE request_id = 'req-001';

@@ -4,27 +4,40 @@
 
 <mapper namespace="com.board.plan.member.mapper.MemberMapper">
 
-    <!-- 사용자 생성 -->
+    <!-- 사용자 생성 --> <!-- todo: member_id에 대한 증가 형식 필요 -->
     <insert id="insertMember" parameterType="MemberDto" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO members (email, password, name, phone_number, created_at, updated_at)
         VALUES (#{email}, #{password}, #{name}, #{phoneNumber}, NOW(), NOW())
     </insert>
 
-    <!-- 모든 사용자 조회 -->
+    <!-- 모든 사용자 조회 --> <!-- todo: 추후 페이징 작업 추가 필요 -->
     <select id="findAllMembers" resultType="MemberDto">
-        SELECT id, email, password, name, phone_number, created_at, updated_at
-        FROM members
-        ORDER BY created_at DESC
+        SELECT 
+            mem.member_id, 
+            mem.email,
+            mem.name, 
+            mem.nickname,
+            mem.phone_number,
+            case when gender = 'M' then '남'
+                when gender = 'F' then '여'
+                ELSE '기타' END as gender ,
+            mem.date_of_birth,
+            mem.status,
+            rol.role_name
+        FROM planer_db.members mem 
+            join roles rol 
+            on mem.role_id=rol.role_id
+        ORDER BY mem.created_at DESC
     </select>
 
-    <!-- ID로 사용자 조회 -->
+    <!-- ID로 사용자 조회 --> <!-- todo: 검색조건으로 사용자 조회로 변경 필요-->
     <select id="findMemberById" parameterType="Long" resultType="MemberDto">
         SELECT id, email, password, name, phone_number, created_at, updated_at
         FROM members
         WHERE id = #{id}
     </select>
 
-    <!-- 이메일로 사용자 조회 -->
+    <!-- 사용자 조회 --> 
     <select id="findMemberByEmail" parameterType="String" resultType="MemberDto">
         SELECT id, email, password, name, phone_number, created_at, updated_at
         FROM members

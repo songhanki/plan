@@ -45,7 +45,7 @@ public class MemberService {
         // fixme: mapper return 값 int 변경 후 반환
         memberMapper.insertMember(memberDto);
         
-        log.info("Member created successfully with ID: {}", memberDto.getId());
+        log.info("Member created successfully with ID: {}", memberDto.getMemberId());
         // fixme: 비밀번호 제외하고 반환
         return memberDto;
     }
@@ -87,13 +87,13 @@ public class MemberService {
 
         // 이메일 중복 확인 (자신 제외)
         MemberDto memberWithEmail = memberMapper.findMemberByEmail(memberDto.getEmail());
-        if (memberWithEmail != null && !memberWithEmail.getId().equals(id)) {
+        if (memberWithEmail != null && !memberWithEmail.getMemberId().equals(id)) {
             throw new DuplicateEntryException("이메일", memberDto.getEmail());
         }
 
         // 전화번호 중복 확인 (자신 제외)
         MemberDto memberWithPhoneNumber = memberMapper.findMemberByPhoneNumber(memberDto.getPhoneNumber());
-        if (memberWithPhoneNumber != null && !memberWithPhoneNumber.getId().equals(id)) {
+        if (memberWithPhoneNumber != null && !memberWithPhoneNumber.getMemberId().equals(id)) {
             throw new DuplicateEntryException("전화번호", memberDto.getPhoneNumber());
         }
 
