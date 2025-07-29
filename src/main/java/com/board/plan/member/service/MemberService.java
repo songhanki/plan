@@ -23,6 +23,16 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     /**
+     * 다음 member_id 자동 생성 (user-001, user-002... 형식)
+     */
+    @Transactional(readOnly = true) // 동시성 문제 해결을 위해 트랜잭션 사용
+    private String generateNextMemberId() {
+        Integer maxNumber = memberMapper.findMaxMemberIdNumber();
+        int nextNumber = (maxNumber != null) ? maxNumber + 1 : 1;
+        return String.format("user-%03d", nextNumber);
+    }
+
+    /**
      * 사용자 생성
      */
     public MemberDto createMember(MemberDto memberDto) {
@@ -38,15 +48,31 @@ public class MemberService {
             throw new DuplicateEntryException("전화번호", memberDto.getPhoneNumber());
         }
 
+        // member_id 자동 생성
+        String nextMemberId = generateNextMemberId();
+        memberDto.setMemberId(nextMemberId);
+        
+        // 기본 역할 설정 (일반 사용자)
+        if (memberDto.getRoleId() == null || memberDto.getRoleId().isEmpty()) {
+            memberDto.setRoleId("role-user");
+        }
+        
+        // 기본 상태 설정
+        if (memberDto.getStatus() == null || memberDto.getStatus().isEmpty()) {
+            memberDto.setStatus("ACTIVE");
+        }
+
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(memberDto.getPassword());
-        
         memberDto.setPassword(encodedPassword);
-        // fixme: mapper return 값 int 변경 후 반환
+        
+        // 회원 등록
         memberMapper.insertMember(memberDto);
         
         log.info("Member created successfully with ID: {}", memberDto.getMemberId());
-        // fixme: 비밀번호 제외하고 반환
+        
+        // 비밀번호 제외하고 반환
+        memberDto.setPassword(null);
         return memberDto;
     }
 
@@ -74,6 +100,19 @@ public class MemberService {
     }
 
     /**
+     * member_id로 사용자 조회
+     */
+    @Transactional(readOnly = true)
+    public MemberDto getMemberByMemberId(String memberId) {
+        log.info("Fetching member with member_id: {}", memberId);
+        MemberDto member = memberMapper.findMemberByMemberId(memberId);
+        if (member == null) {
+            throw new UserNotFoundException("사용자 ID: " + memberId + "를 찾을 수 없습니다.");
+        }
+        return member;
+    }
+
+    /**
      * 사용자 정보 수정
      */
     public MemberDto updateMember(Long id, MemberDto memberDto) {
@@ -87,27 +126,31 @@ public class MemberService {
 
         // 이메일 중복 확인 (자신 제외)
         MemberDto memberWithEmail = memberMapper.findMemberByEmail(memberDto.getEmail());
-        if (memberWithEmail != null && !memberWithEmail.getMemberId().equals(id)) {
+        if (memberWithEmail != null && !memberWithEmail.getMemberId().equals(existingMember.getMemberId())) {
             throw new DuplicateEntryException("이메일", memberDto.getEmail());
         }
 
         // 전화번호 중복 확인 (자신 제외)
         MemberDto memberWithPhoneNumber = memberMapper.findMemberByPhoneNumber(memberDto.getPhoneNumber());
-        if (memberWithPhoneNumber != null && !memberWithPhoneNumber.getMemberId().equals(id)) {
+        if (memberWithPhoneNumber != null && !memberWithPhoneNumber.getMemberId().equals(existingMember.getMemberId())) {
             throw new DuplicateEntryException("전화번호", memberDto.getPhoneNumber());
         }
 
+        // member_id는 기존 값 유지
+        memberDto.setMemberId(existingMember.getMemberId());
+
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(memberDto.getPassword());
-        
-        // 암호화된 비밀번호 DTO 저장
         memberDto.setPassword(encodedPassword);
 
         memberMapper.updateMember(memberDto);
         
         // 업데이트된 사용자 정보 조회
-        MemberDto updatedMember = memberMapper.findMemberById(id);
-        log.info("Member updated successfully with ID: {}", id);
+        MemberDto updatedMember = memberMapper.findMemberByMemberId(memberDto.getMemberId());
+        log.info("Member updated successfully with member_id: {}", memberDto.getMemberId());
+        
+        // 비밀번호 제외하고 반환
+        updatedMember.setPassword(null);
         return updatedMember;
     }
 
@@ -128,16 +171,18 @@ public class MemberService {
     }
 
     /**
-     * Member 엔티티를 MemberDto로 변환 (비밀번호 제외)
+     * member_id로 사용자 삭제
      */
-//     private MemberDto convertToDto(Member member) {
-//         return MemberDto.builder()
-//                 .id(member.getId())
-//                 .email(member.getEmail())
-//                 .name(member.getName())
-//                 .phoneNumber(member.getPhoneNumber())
-//                 .createdAt(member.getCreatedAt())
-//                 .updatedAt(member.getUpdatedAt())
-//                 .build();
-//     }
+    public void deleteMemberByMemberId(String memberId) {
+        log.info("Deleting member with member_id: {}", memberId);
+        
+        // 사용자 존재 확인
+        MemberDto member = memberMapper.findMemberByMemberId(memberId);
+        if (member == null) {
+            throw new UserNotFoundException("사용자 ID: " + memberId + "를 찾을 수 없습니다.");
+        }
+
+        memberMapper.deleteMemberByMemberId(memberId);
+        log.info("Member deleted successfully with member_id: {}", memberId);
+    }
 } 

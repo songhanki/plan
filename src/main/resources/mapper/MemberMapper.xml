@@ -4,49 +4,131 @@
 
 <mapper namespace="com.board.plan.member.mapper.MemberMapper">
 
-    <!-- 사용자 생성 --> <!-- todo: member_id에 대한 증가 형식 필요 -->
-    <insert id="insertMember" parameterType="MemberDto" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO members (email, password, name, phone_number, created_at, updated_at)
-        VALUES (#{email}, #{password}, #{name}, #{phoneNumber}, NOW(), NOW())
+    <!-- 사용자 생성 -->
+    <insert id="insertMember" parameterType="MemberDto">
+        INSERT INTO members (
+            member_id, email, password, name, phone_number, 
+            gender, date_of_birth, status, role_id, nick_name,
+            created_at, updated_at
+        )
+        VALUES (
+            #{memberId}, #{email}, #{password}, #{name}, #{phoneNumber}, 
+            #{gender}, #{dateOfBirth}, #{status}, #{roleId}, #{nickName},
+            NOW(), NOW()
+        )
     </insert>
+
+    <!-- 최대 member_id의 번호 부분 조회 -->
+    <select id="findMaxMemberIdNumber" resultType="Integer">
+        SELECT COALESCE(
+            MAX(CAST(SUBSTRING(member_id, 6) AS UNSIGNED)), 0
+        ) as maxNumber
+        FROM members 
+        WHERE member_id LIKE 'user-%'
+        AND LENGTH(member_id) >= 8
+        AND SUBSTRING(member_id, 6) REGEXP '^[0-9]+$'
+    </select>
 
     <!-- 모든 사용자 조회 --> <!-- todo: 추후 페이징 작업 추가 필요 -->
     <select id="findAllMembers" resultType="MemberDto">
         SELECT 
-            mem.member_id, 
+            mem.member_id as memberId, 
             mem.email,
             mem.name, 
             mem.nickname,
-            mem.phone_number,
-            case when gender = 'M' then '남'
-                when gender = 'F' then '여'
-                ELSE '기타' END as gender ,
-            mem.date_of_birth,
+            mem.phone_number as phoneNumber,
+            mem.nick_name as nickName,
+            CASE 
+                WHEN mem.gender = 'M' THEN '남'
+                WHEN mem.gender = 'F' THEN '여'
+                ELSE '기타' 
+            END as gender,
+            mem.date_of_birth as dateOfBirth,
             mem.status,
-            rol.role_name
-        FROM planer_db.members mem 
-            join roles rol 
-            on mem.role_id=rol.role_id
+            mem.role_id as roleId,
+            rol.role_name as roleName,
+            mem.created_at as createdAt,
+            mem.updated_at as updatedAt
+        FROM members mem 
+        JOIN roles rol ON mem.role_id = rol.role_id
         ORDER BY mem.created_at DESC
     </select>
 
-    <!-- ID로 사용자 조회 --> <!-- todo: 검색조건으로 사용자 조회로 변경 필요-->
+    <!-- ID로 사용자 조회 (임시 호환성을 위해 유지) -->
     <select id="findMemberById" parameterType="Long" resultType="MemberDto">
-        SELECT id, email, password, name, phone_number, created_at, updated_at
+        SELECT 
+            member_id as memberId,
+            email, 
+            password, 
+            name, 
+            phone_number as phoneNumber, 
+            nick_name as nickName,
+            gender,
+            date_of_birth as dateOfBirth,
+            status,
+            role_id as roleId,
+            created_at as createdAt, 
+            updated_at as updatedAt
         FROM members
-        WHERE id = #{id}
+        WHERE member_id = CONCAT('user-', LPAD(#{id}, 3, '0'))
     </select>
 
-    <!-- 사용자 조회 --> 
+    <!-- member_id로 사용자 조회 -->
+    <select id="findMemberByMemberId" parameterType="String" resultType="MemberDto">
+        SELECT 
+            member_id as memberId,
+            email, 
+            password, 
+            name, 
+            nickname,
+            phone_number as phoneNumber, 
+            nick_name as nickName,
+            gender,
+            date_of_birth as dateOfBirth,
+            status,
+            role_id as roleId,
+            created_at as createdAt, 
+            updated_at as updatedAt
+        FROM members
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- 이메일로 사용자 조회 --> 
     <select id="findMemberByEmail" parameterType="String" resultType="MemberDto">
-        SELECT id, email, password, name, phone_number, created_at, updated_at
+        SELECT 
+            member_id as memberId,
+            email, 
+            password, 
+            name, 
+            nickname,
+            phone_number as phoneNumber, 
+            nick_name as nickName,
+            gender,
+            date_of_birth as dateOfBirth,
+            status,
+            role_id as roleId,
+            created_at as createdAt, 
+            updated_at as updatedAt
         FROM members
         WHERE email = #{email}
     </select>
 
     <!-- 전화번호로 사용자 조회 -->
     <select id="findMemberByPhoneNumber" parameterType="String" resultType="MemberDto">
-        SELECT id, email, password, name, phone_number, created_at, updated_at
+        SELECT 
+            member_id as memberId,
+            email, 
+            password, 
+            name, 
+            nickname,
+            phone_number as phoneNumber, 
+            nick_name as nickName,
+            gender,
+            date_of_birth as dateOfBirth,
+            status,
+            role_id as roleId,
+            created_at as createdAt, 
+            updated_at as updatedAt
         FROM members
         WHERE phone_number = #{phoneNumber}
     </select>
@@ -57,14 +139,26 @@
         SET email = #{email},
             password = #{password},
             name = #{name},
+            nickname = #{nickname},
             phone_number = #{phoneNumber},
+            nick_name = #{nickName},
+            gender = #{gender},
+            date_of_birth = #{dateOfBirth},
+            status = #{status},
+            role_id = #{roleId},
             updated_at = NOW()
-        WHERE id = #{id}
+        WHERE member_id = #{memberId}
     </update>
 
-    <!-- 사용자 삭제 -->
+    <!-- 사용자 삭제 (ID 기반) -->
     <delete id="deleteMember" parameterType="Long">
-        DELETE FROM members WHERE id = #{id}
+        DELETE FROM members 
+        WHERE member_id = CONCAT('user-', LPAD(#{id}, 3, '0'))
+    </delete>
+
+    <!-- 사용자 삭제 (member_id 기반) -->
+    <delete id="deleteMemberByMemberId" parameterType="String">
+        DELETE FROM members WHERE member_id = #{memberId}
     </delete>
 
     <!-- 이메일 존재 여부 확인 -->

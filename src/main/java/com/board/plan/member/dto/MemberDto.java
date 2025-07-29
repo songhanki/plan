@@ -45,13 +45,16 @@ public class MemberDto {
     @Schema(description = "생년월일", example = "1990-01-01")
     private String dateOfBirth;
 
-    @Schema(description = "역할 ID", example = "role-001")
+    @Schema(description = "역할 ID", example = "role-user")
     private String roleId;
 
     @Schema(description = "역할 이름", example = "관리자")
     private String roleName;
 
-    @Schema(description = "성별", example = "남")
+    @Schema(description = "닉네임", example = "홍길동")
+    private String nickName;
+
+    @Schema(description = "성별", example = "남(등록시에는 F/M 으로 구분)")
     private String gender;
 
     @Schema(description = "상태", example = "ACTIVE")

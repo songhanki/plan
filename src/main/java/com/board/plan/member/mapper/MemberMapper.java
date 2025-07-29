@@ -15,6 +15,8 @@ public interface MemberMapper {
     
     MemberDto findMemberById(@Param("id") Long id);
     
+    MemberDto findMemberByMemberId(@Param("memberId") String memberId);
+    
     MemberDto findMemberByEmail(@Param("email") String email);
     
     MemberDto findMemberByPhoneNumber(@Param("phoneNumber") String phoneNumber);
@@ -23,7 +25,15 @@ public interface MemberMapper {
     
     void deleteMember(@Param("id") Long id);
     
+    void deleteMemberByMemberId(@Param("memberId") String memberId);
+    
     boolean existsByEmail(@Param("email") String email);
     
     boolean existsByPhoneNumber(@Param("phoneNumber") String phoneNumber);
+    
+    /**
+     * 최대 member_id의 번호 부분을 조회 (user-XXX에서 XXX 부분)
+     * @return 최대 번호 (예: user-005에서 5 반환)
+     */
+    Integer findMaxMemberIdNumber();
 } 
