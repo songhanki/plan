@@ -1,5 +1,6 @@
 package com.board.plan.core.exception;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,10 +13,14 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
     private LocalDateTime timestamp;
     private int status;
     private String error;
     private String message;
-    private Map<String, String> validationErrors;
+    private String path;
+    
+    // 유효성 검사 오류 등의 상세 정보
+    private Map<String, String> details;
 } 

@@ -8,12 +8,12 @@
     <insert id="insertMember" parameterType="MemberDto">
         INSERT INTO members (
             member_id, email, password, name, phone_number, 
-            gender, date_of_birth, status, role_id, nick_name,
+            gender, date_of_birth, status, role_id, nickname,
             created_at, updated_at
         )
         VALUES (
             #{memberId}, #{email}, #{password}, #{name}, #{phoneNumber}, 
-            #{gender}, #{dateOfBirth}, #{status}, #{roleId}, #{nickName},
+            #{gender}, #{dateOfBirth}, #{status}, #{roleId}, #{nickname},
             NOW(), NOW()
         )
     </insert>
@@ -37,7 +37,6 @@
             mem.name, 
             mem.nickname,
             mem.phone_number as phoneNumber,
-            mem.nick_name as nickName,
             CASE 
                 WHEN mem.gender = 'M' THEN '남'
                 WHEN mem.gender = 'F' THEN '여'
@@ -62,7 +61,6 @@
             password, 
             name, 
             phone_number as phoneNumber, 
-            nick_name as nickName,
             gender,
             date_of_birth as dateOfBirth,
             status,
@@ -82,7 +80,6 @@
             name, 
             nickname,
             phone_number as phoneNumber, 
-            nick_name as nickName,
             gender,
             date_of_birth as dateOfBirth,
             status,
@@ -102,7 +99,6 @@
             name, 
             nickname,
             phone_number as phoneNumber, 
-            nick_name as nickName,
             gender,
             date_of_birth as dateOfBirth,
             status,
@@ -122,7 +118,6 @@
             name, 
             nickname,
             phone_number as phoneNumber, 
-            nick_name as nickName,
             gender,
             date_of_birth as dateOfBirth,
             status,
@@ -141,7 +136,6 @@
             name = #{name},
             nickname = #{nickname},
             phone_number = #{phoneNumber},
-            nick_name = #{nickName},
             gender = #{gender},
             date_of_birth = #{dateOfBirth},
             status = #{status},

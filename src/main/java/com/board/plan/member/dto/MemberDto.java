@@ -52,7 +52,7 @@ public class MemberDto {
     private String roleName;
 
     @Schema(description = "닉네임", example = "홍길동")
-    private String nickName;
+    private String nickname;
 
     @Schema(description = "성별", example = "남(등록시에는 F/M 으로 구분)")
     private String gender;
