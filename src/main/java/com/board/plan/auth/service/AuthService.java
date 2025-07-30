@@ -6,13 +6,13 @@ import com.board.plan.auth.dto.RefreshTokenRequestDto;
 import com.board.plan.auth.dto.RefreshTokenResponseDto;
 import com.board.plan.core.exception.UserNotFoundException;
 import com.board.plan.core.jwt.JwtTokenProvider;
+import com.board.plan.core.util.PasswordUtil;
 import com.board.plan.member.dto.MemberDto;
 import com.board.plan.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final MemberMapper memberMapper;
-    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
@@ -39,8 +38,10 @@ public class AuthService {
             throw new BadCredentialsException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        // 2. 비밀번호 검증
-        if (!passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
+        // 2. 비밀번호 검증 (SHA256)
+        log.info("로그인 시도 - 이메일: {}", loginRequest.getEmail());
+        log.debug("입력된 패스워드와 저장된 패스워드 비교 시작");
+        if (!PasswordUtil.matches(loginRequest.getPassword(), member.getPassword())) {
             log.warn("잘못된 비밀번호로 로그인 시도: {}", loginRequest.getEmail());
             throw new BadCredentialsException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }

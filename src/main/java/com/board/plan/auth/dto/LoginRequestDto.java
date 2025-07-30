@@ -17,7 +17,7 @@ public class LoginRequestDto {
 
     @NotBlank(message = "이메일은 필수입니다")
     @Email(message = "유효한 이메일 형식이어야 합니다")
-    @Schema(description = "사용자 이메일", example = "user@example.com", required = true)
+    @Schema(description = "사용자 이메일", example = "test@test.com", required = true)
     private String email;
 
     @NotBlank(message = "비밀번호는 필수입니다")

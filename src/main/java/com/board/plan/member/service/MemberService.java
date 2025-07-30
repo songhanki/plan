@@ -3,10 +3,10 @@ package com.board.plan.member.service;
 import com.board.plan.member.dto.MemberDto;
 import com.board.plan.core.exception.DuplicateEntryException;
 import com.board.plan.core.exception.UserNotFoundException;
+import com.board.plan.core.util.PasswordUtil;
 import com.board.plan.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class MemberService {
 
     private final MemberMapper memberMapper;
-    private final PasswordEncoder passwordEncoder;
 
     /**
      * 다음 member_id 자동 생성 (user-001, user-002... 형식)
@@ -62,9 +61,9 @@ public class MemberService {
             memberDto.setStatus("ACTIVE");
         }
 
-        // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(memberDto.getPassword());
-        memberDto.setPassword(encodedPassword);
+        // 비밀번호 SHA256 암호화
+        String encryptedPassword = PasswordUtil.encryptPassword(memberDto.getPassword());
+        memberDto.setPassword(encryptedPassword);
         
         // 회원 등록
         memberMapper.insertMember(memberDto);
@@ -139,9 +138,9 @@ public class MemberService {
         // member_id는 기존 값 유지
         memberDto.setMemberId(existingMember.getMemberId());
 
-        // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(memberDto.getPassword());
-        memberDto.setPassword(encodedPassword);
+        // 비밀번호 SHA256 암호화
+        String encryptedPassword = PasswordUtil.encryptPassword(memberDto.getPassword());
+        memberDto.setPassword(encryptedPassword);
 
         memberMapper.updateMember(memberDto);
         
