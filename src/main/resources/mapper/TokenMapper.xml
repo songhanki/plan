@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.plan.auth.mapper.TokenMapper">
+    
+    <insert id="saveToken" parameterType="com.board.plan.auth.model.Token">
+        INSERT INTO tokens (
+            member_id,
+            access_token,
+            refresh_token,
+            access_token_expires_at,
+            refresh_token_expires_at,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{memberId},
+            #{accessToken},
+            #{refreshToken},
+            #{accessTokenExpiresAt},
+            #{refreshTokenExpiresAt},
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+    <select id="findByMemberId" resultType="com.board.plan.auth.model.Token">
+        SELECT *
+        FROM tokens
+        WHERE member_id = #{memberId}
+    </select>
+
+    <select id="findByAccessToken" resultType="com.board.plan.auth.model.Token">
+        SELECT *
+        FROM tokens
+        WHERE access_token = #{accessToken}
+    </select>
+
+    <update id="updateToken" parameterType="com.board.plan.auth.model.Token">
+        UPDATE tokens
+        SET
+            access_token = #{accessToken},
+            refresh_token = #{refreshToken},
+            access_token_expires_at = #{accessTokenExpiresAt},
+            refresh_token_expires_at = #{refreshTokenExpiresAt},
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
+    <delete id="deleteByMemberId">
+        DELETE FROM tokens
+        WHERE member_id = #{memberId}
+    </delete>
+</mapper>

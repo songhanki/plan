@@ -21,6 +21,8 @@ public class LoginRequestDto {
     private String email;
 
     @NotBlank(message = "비밀번호는 필수입니다")
-    @Schema(description = "사용자 비밀번호", example = "password123", required = true)
+    @Schema(description = "사용자 비밀번호 (웹에서는 SHA256 해싱된 값, 평문도 지원)", 
+            example = "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f", 
+            required = true)
     private String password;
 } 

@@ -53,6 +53,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 인증 없이 접근 가능한 엔드포인트
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/v1/tokens/validate").permitAll()  // 토큰 검증 엔드포인트
                 .requestMatchers("/api/members").permitAll() // 회원 가입만 허용
                 
                 // Swagger/OpenAPI 문서 접근 허용

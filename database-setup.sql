@@ -263,3 +263,17 @@ SET @tables = CONCAT('DROP TABLE ', @tables);
 PREPARE stmt FROM @tables;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+CREATE TABLE tokens (
+    member_id VARCHAR(36) NOT NULL,
+    access_token TEXT NOT NULL,
+    refresh_token TEXT NOT NULL,
+    access_token_expires_at DATETIME NOT NULL,
+    refresh_token_expires_at DATETIME NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    PRIMARY KEY (member_id),
+    CONSTRAINT fk_tokens_member FOREIGN KEY (member_id) REFERENCES members(member_id)
+);
+
+CREATE INDEX idx_tokens_access_token ON tokens (access_token(100));

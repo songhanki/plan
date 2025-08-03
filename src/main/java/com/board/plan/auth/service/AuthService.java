@@ -24,6 +24,7 @@ public class AuthService {
 
     private final MemberMapper memberMapper;
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenService tokenService;
 
     /**
      * 사용자 로그인 및 JWT 토큰 발급
@@ -41,7 +42,24 @@ public class AuthService {
         // 2. 비밀번호 검증 (SHA256)
         log.info("로그인 시도 - 이메일: {}", loginRequest.getEmail());
         log.debug("입력된 패스워드와 저장된 패스워드 비교 시작");
-        if (!PasswordUtil.matches(loginRequest.getPassword(), member.getPassword())) {
+        
+        boolean passwordMatch = false;
+        String inputPassword = loginRequest.getPassword();
+        String storedPassword = member.getPassword();
+        
+        // 클라이언트에서 이미 SHA256으로 해싱된 비밀번호를 전송하는 경우 직접 비교
+        if (inputPassword.equals(storedPassword)) {
+            passwordMatch = true;
+            log.debug("해싱된 비밀번호 직접 비교 성공");
+        } else {
+            // 평문 비밀번호로 전송된 경우를 대비한 해싱 후 비교 (fallback)
+            if (PasswordUtil.matches(inputPassword, storedPassword)) {
+                passwordMatch = true;
+                log.debug("평문 비밀번호 해싱 후 비교 성공");
+            }
+        }
+        
+        if (!passwordMatch) {
             log.warn("잘못된 비밀번호로 로그인 시도: {}", loginRequest.getEmail());
             throw new BadCredentialsException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
@@ -67,7 +85,10 @@ public class AuthService {
         // 6. 로그인 성공 로그
         log.info("로그인 성공: {} (member_id: {})", loginRequest.getEmail(), member.getMemberId());
 
-        // 7. 응답 DTO 생성
+        // 7. 토큰 저장
+        tokenService.saveTokens(member.getMemberId(), accessToken, refreshToken);
+
+        // 8. 응답 DTO 생성
         return LoginResponseDto.of(
             accessToken,
             refreshToken,
@@ -154,8 +175,8 @@ public class AuthService {
      * 필요시 Redis를 사용한 블랙리스트 기능을 추가할 수 있음
      */
     public void logout(String accessToken) {
-        // TODO: 필요시 토큰 블랙리스트 기능 구현
-        // Redis에 토큰 저장하거나 DB에 블랙리스트 테이블 생성
-        log.info("로그아웃 처리 (클라이언트에서 토큰 삭제 필요)");
+        String memberId = jwtTokenProvider.getMemberIdFromToken(accessToken);
+        tokenService.deleteToken(memberId);
+        log.info("로그아웃 처리 완료: {}", memberId);
     }
 } 
