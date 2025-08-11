@@ -43,7 +43,13 @@
                 ELSE '기타' 
             END as gender,
             mem.date_of_birth as dateOfBirth,
-            mem.status,
+            CASE
+                WHEN mem.status = 'ACTIVE' THEN '활성'
+                WHEN mem.status = 'INACTIVE' THEN '비활성'
+                WHEN mem.status = 'BLOCKED' THEN '정지'
+                WHEN mem.status = 'DELETED' THEN '탈퇴'
+                ELSE '기타'
+            END as status,
             mem.role_id as roleId,
             rol.role_name as roleName,
             mem.created_at as createdAt,
