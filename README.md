@@ -230,3 +230,28 @@ Jasypt를 사용하여 데이터베이스 접속 정보를 암호화하는 방�
 3. 암호화된 값은 매번 다르게 생성되지만, 같은 키로 복호화하면 동일한 원본 값을 얻을 수 있습니다.
 
 이제 데이터베이스 접속 정보가 암호화되어 보안이 강화되었습니다. 추가로 필요한 설정이나 질문이 있으시다면 말씀해 주세요.
+
+#api 호출시 에러가 있을시 return 
+{
+  "timestamp": "2024-01-15T10:30:00",
+  "status": 409,
+  "error": "Conflict",
+  "message": "이메일이 이미 존재합니다: test@example.com",
+  "path": "/api/members",
+  "logLevel": "WARN",
+  "logMessage": "[DuplicateEntryException] 이메일이 이미 존재합니다: test@example.com - 이메일: test@example.com",
+  "exceptionClass": "com.board.plan.core.exception.DuplicateEntryException",
+  "stackTrace": "...",
+  "debugInfo": {
+    "originalMessage": "이메일: test@example.com",
+    "logMessage": "Member creation failed - 이메일이 이미 존재합니다: test@example.com"
+  }
+}
+prod환경
+{
+  "timestamp": "2024-01-15T10:30:00",
+  "status": 409,
+  "error": "Conflict",
+  "message": "이메일이 이미 존재합니다: test@example.com",
+  "path": "/api/members"
+}

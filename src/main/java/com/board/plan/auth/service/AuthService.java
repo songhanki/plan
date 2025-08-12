@@ -35,7 +35,8 @@ public class AuthService {
         // 1. 이메일로 사용자 조회
         MemberDto member = memberMapper.findMemberByEmail(loginRequest.getEmail());
         if (member == null) {
-            log.warn("존재하지 않는 이메일로 로그인 시도: {}", loginRequest.getEmail());
+            String errorMsg = String.format("존재하지 않는 이메일로 로그인 시도: %s", loginRequest.getEmail());
+            log.warn("Login failed - {}", errorMsg);
             throw new BadCredentialsException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
 
@@ -60,13 +61,16 @@ public class AuthService {
         }
         
         if (!passwordMatch) {
-            log.warn("잘못된 비밀번호로 로그인 시도: {}", loginRequest.getEmail());
+            String errorMsg = String.format("잘못된 비밀번호로 로그인 시도: %s", loginRequest.getEmail());
+            log.warn("Login failed - {}", errorMsg);
             throw new BadCredentialsException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
 
         // 3. 계정 상태 확인
         if (!"ACTIVE".equals(member.getStatus())) {
-            log.warn("비활성 계정으로 로그인 시도: {} (상태: {})", loginRequest.getEmail(), member.getStatus());
+            String errorMsg = String.format("비활성 계정으로 로그인 시도: %s (상태: %s, member_id: %s)", 
+                loginRequest.getEmail(), member.getStatus(), member.getMemberId());
+            log.warn("Login failed - {}", errorMsg);
             throw new DisabledException("계정이 비활성화되었습니다. 관리자에게 문의하세요.");
         }
 
@@ -111,13 +115,15 @@ public class AuthService {
 
         // 1. Refresh Token 유효성 검증
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            log.warn("유효하지 않은 Refresh Token으로 갱신 시도");
+            String errorMsg = "유효하지 않은 Refresh Token으로 갱신 시도";
+            log.warn("Token refresh failed - {}", errorMsg);
             throw new BadCredentialsException("유효하지 않은 Refresh Token입니다.");
         }
 
         // 2. Refresh Token 타입 확인
         if (!jwtTokenProvider.isRefreshToken(refreshToken)) {
-            log.warn("잘못된 토큰 타입으로 갱신 시도 (Refresh Token이 아님)");
+            String errorMsg = "잘못된 토큰 타입으로 갱신 시도 (Refresh Token이 아님)";
+            log.warn("Token refresh failed - {}", errorMsg);
             throw new BadCredentialsException("잘못된 토큰 타입입니다.");
         }
 
@@ -127,13 +133,15 @@ public class AuthService {
         // 4. 사용자 정보 조회 및 검증
         MemberDto member = memberMapper.findMemberByMemberId(memberId);
         if (member == null) {
-            log.warn("존재하지 않는 사용자의 Refresh Token: {}", memberId);
+            String errorMsg = String.format("존재하지 않는 사용자의 Refresh Token: %s", memberId);
+            log.warn("Token refresh failed - {}", errorMsg);
             throw new UserNotFoundException("사용자를 찾을 수 없습니다.");
         }
 
         // 5. 계정 상태 확인
         if (!"ACTIVE".equals(member.getStatus())) {
-            log.warn("비활성 계정의 Refresh Token 사용 시도: {}", memberId);
+            String errorMsg = String.format("비활성 계정의 Refresh Token 사용 시도: %s (상태: %s)", memberId, member.getStatus());
+            log.warn("Token refresh failed - {}", errorMsg);
             throw new DisabledException("계정이 비활성화되었습니다.");
         }
 

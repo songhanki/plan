@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_phone_number (phone_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 샘플 데이터 삽입 (비밀번호는 'password123'을 BCrypt로 암호화한 값)
+-- 샘플 데이터 삽입 (비밀번호는 'password123'을 SHA256로 암호화한 값)
 INSERT INTO users (email, password, name, phone_number) VALUES 
-('admin@example.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.', '관리자', '010-1234-5678'),
-('user1@example.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.', '사용자1', '010-9876-5432');
+('admin@example.com', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', '관리자', '010-1234-5678'),
+('user1@example.com', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', '사용자1', '010-9876-5432');
 
 -- 테이블 구조 확인
 DESCRIBE users; 
@@ -202,13 +202,13 @@ INSERT INTO role_permissions (role_id, permission_id, created_at, updated_at) VA
 ('role-user', 'perm-leave-request', NOW(), NOW());
 
 -- members 테이블 데이터
--- 비밀번호는 'password'를 bcrypt로 해싱했다고 가정 (실제로는 애플리케이션에서 해싱)
+-- 비밀번호는 'password'를 SHA256로 해싱했다고 가정 (실제로는 애플리케이션에서 해싱)
 -- member_id는 UUID를 사용하여 임의의 값을 생성
 INSERT INTO members (member_id, email, password, name, nickname, phone_number, gender, date_of_birth, profile_image_url, status, role_id, created_at, updated_at, last_login_at) VALUES
-('user-001', 'admin@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '관리자', '시스템관리자', '01011112222', 'M', '1980-01-01', NULL, 'ACTIVE', 'role-admin', NOW(), NOW(), NOW()),
-('user-002', 'manager@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '김팀장', '팀장님', '01033334444', 'F', '1985-05-10', NULL, 'ACTIVE', 'role-manager', NOW(), NOW(), NOW()),
-('user-003', 'user1@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '이사용자', '사용자1', '01055556666', 'M', '1990-11-20', NULL, 'ACTIVE', 'role-user', NOW(), NOW(), NOW()),
-('user-004', 'user2@example.com', '$2a$10$abcdefghijklmnopqrstuvwxyza', '박사원', '사원2', '01077778888', 'F', '1992-03-15', NULL, 'ACTIVE', 'role-user', NOW(), NOW(), NOW());
+('user-001', 'admin@example.com', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', '관리자', '시스템관리자', '01011112222', 'M', '1980-01-01', NULL, 'ACTIVE', 'role-admin', NOW(), NOW(), NOW()),
+('user-002', 'manager@example.com', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', '김팀장', '팀장님', '01033334444', 'F', '1985-05-10', NULL, 'ACTIVE', 'role-manager', NOW(), NOW(), NOW()),
+('user-003', 'user1@example.com', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', '이사용자', '사용자1', '01055556666', 'M', '1990-11-20', NULL, 'ACTIVE', 'role-user', NOW(), NOW(), NOW()),
+('user-004', 'user2@example.com', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', '박사원', '사원2', '01077778888', 'F', '1992-03-15', NULL, 'ACTIVE', 'role-user', NOW(), NOW(), NOW());
 
 -- member_addresses 테이블 데이터
 INSERT INTO member_addresses (address_id, member_id, address_type, postal_code, address_main, address_detail, is_default, created_at, updated_at) VALUES
