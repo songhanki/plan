@@ -156,10 +156,14 @@
         WHERE member_id = CONCAT('user-', LPAD(#{id}, 3, '0'))
     </delete>
 
-    <!-- 사용자 삭제 (member_id 기반) -->
-    <delete id="deleteMemberByMemberId" parameterType="String">
-        DELETE FROM members WHERE member_id = #{memberId}
-    </delete>
+    <!-- 사용자 삭제 (member_id 기반) 
+    사용자 삭제 시 사용자 정보를 삭제하는 것이 아니라 사용자 상태를 변경하는 것으로 변경(status를 deleted로 변경)
+    -->
+    <update id="deleteMemberByMemberId" parameterType="String">
+        UPDATE members
+        SET status = 'DELETED'
+        WHERE member_id = #{memberId}
+    </update>
 
     <!-- 이메일 존재 여부 확인 -->
     <select id="existsByEmail" parameterType="String" resultType="boolean">
