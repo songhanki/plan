@@ -18,5 +18,18 @@
         
         <!-- Member 관련 별칭 -->
         <typeAlias type="com.board.plan.member.dto.MemberDto" alias="MemberDto"/>
+        
+        <!-- Schedule 관련 별칭 -->
+        <typeAlias type="com.board.plan.schedule.model.Schedule" alias="Schedule"/>
+        <typeAlias type="com.board.plan.schedule.model.ScheduleParticipant" alias="ScheduleParticipant"/>
+        
+        <!-- Leave 관련 별칭 -->
+        <typeAlias type="com.board.plan.leave.model.LeaveRequest" alias="LeaveRequest"/>
+        <typeAlias type="com.board.plan.leave.model.LeaveApproval" alias="LeaveApproval"/>
+        
+        <!-- Role 관련 별칭 -->
+        <typeAlias type="com.board.plan.role.model.Role" alias="Role"/>
+        <typeAlias type="com.board.plan.role.model.Permission" alias="Permission"/>
+        <typeAlias type="com.board.plan.role.model.RolePermission" alias="RolePermission"/>
     </typeAliases>
 </configuration> 

@@ -53,7 +53,7 @@ public class SecurityConfig {
                 // 인증 없이 접근 가능한 엔드포인트
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/v1/tokens/validate").permitAll()  // 토큰 검증 엔드포인트
-                .requestMatchers("/api/members").permitAll() // 회원 가입만 허용
+                .requestMatchers(HttpMethod.POST, "/api/members").permitAll() // 회원가입만 허용
                 
                 // Swagger/OpenAPI 문서 접근 허용
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
@@ -64,20 +64,38 @@ public class SecurityConfig {
                 // 헬스체크 등 기본 엔드포인트
                 .requestMatchers("/actuator/health").permitAll()
                 
-                // ============= 역할 기반 인가 규칙 =============
+                // ============= 새로운 API 인가 규칙 =============
                 
-                // 관리자만 접근 가능한 엔드포인트
-                .requestMatchers(HttpMethod.POST, "/api/members").permitAll() // 회원가입은 모두 허용
-                .requestMatchers(HttpMethod.PUT, "/api/members/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasRole("ADMIN")
+                // 관리자 전용 - 권한 관리
+                .requestMatchers("/api/roles/**", "/api/permissions/**").hasAuthority("role-admin")
                 
-                // 팀장 또는 관리자만 접근 가능한 엔드포인트
-                .requestMatchers("/api/leave-approvals/**").hasAnyRole("MANAGER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/members").hasAnyRole("MANAGER", "ADMIN")
+                // 팀장 이상 - 팀/전사 일정 관리
+                .requestMatchers(HttpMethod.POST, "/api/schedules").hasAnyAuthority("role-manager", "role-admin")
+                .requestMatchers(HttpMethod.PUT, "/api/schedules/{scheduleId}").hasAnyAuthority("role-manager", "role-admin")
+                .requestMatchers(HttpMethod.DELETE, "/api/schedules/{scheduleId}").hasAnyAuthority("role-manager", "role-admin")
+                .requestMatchers(HttpMethod.GET, "/api/schedules").hasAnyAuthority("role-manager", "role-admin")
+                .requestMatchers("/api/schedules/all").hasAuthority("role-admin")
                 
-                // 로그인된 사용자는 모두 접근 가능한 엔드포인트
-                .requestMatchers("/api/schedules/**").authenticated()
-                .requestMatchers("/api/leave-requests/**").authenticated()
+                // 팀장 이상 - 휴가 승인 관리
+                .requestMatchers("/api/leaves/approvals/**").hasAnyAuthority("role-manager", "role-admin")
+                .requestMatchers("/api/leaves/history").hasAnyAuthority("role-manager", "role-admin")
+                .requestMatchers("/api/leaves/statistics").hasAnyAuthority("role-manager", "role-admin")
+                
+                // 일반 사용자 이상 - 개인 일정 관리
+                .requestMatchers("/api/schedules/my/**").hasAnyAuthority("role-user", "role-manager", "role-admin")
+                
+                // 일반 사용자 이상 - 휴가 신청 관리
+                .requestMatchers("/api/leaves/requests/**").hasAnyAuthority("role-user", "role-manager", "role-admin")
+                .requestMatchers("/api/leaves/history/my").hasAnyAuthority("role-user", "role-manager", "role-admin")
+                
+                // 권한 조회
+                .requestMatchers("/api/my/permissions").hasAnyAuthority("role-user", "role-manager", "role-admin")
+                .requestMatchers("/api/members/*/permissions").hasAnyAuthority("role-manager", "role-admin")
+                
+                // 기존 회원 관리
+                .requestMatchers(HttpMethod.GET, "/api/members").hasAnyAuthority("role-manager", "role-admin")
+                .requestMatchers(HttpMethod.PUT, "/api/members/**").hasAuthority("role-admin")
+                .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasAuthority("role-admin")
                 .requestMatchers(HttpMethod.GET, "/api/members/member/**").authenticated() // 자신의 정보 조회
                 
                 // 그 외 모든 요청은 인증 필요

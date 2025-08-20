@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.board.plan.leave.mapper.LeaveMapper">
+
+    <!-- LeaveRequest ResultMap -->
+    <resultMap id="leaveRequestResultMap" type="com.board.plan.leave.model.LeaveRequest">
+        <id column="request_id" property="requestId"/>
+        <result column="member_id" property="memberId"/>
+        <result column="leave_type" property="leaveType"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="request_reason" property="requestReason"/>
+        <result column="status" property="status"/>
+        <result column="request_date" property="requestDate"/>
+        <result column="approval_id" property="approvalId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- LeaveApproval ResultMap -->
+    <resultMap id="leaveApprovalResultMap" type="com.board.plan.leave.model.LeaveApproval">
+        <id column="approval_id" property="approvalId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="approver_id" property="approverId"/>
+        <result column="approval_status" property="approvalStatus"/>
+        <result column="approval_reason" property="approvalReason"/>
+        <result column="approval_date" property="approvalDate"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 휴가 신청 -->
+    <insert id="insertLeaveRequest" parameterType="com.board.plan.leave.model.LeaveRequest">
+        INSERT INTO leave_requests (
+            request_id, member_id, leave_type, start_date, end_date,
+            request_reason, status, request_date, created_at, updated_at
+        ) VALUES (
+            #{requestId}, #{memberId}, #{leaveType}, #{startDate}, #{endDate},
+            #{requestReason}, #{status}, #{requestDate}, NOW(), NOW()
+        )
+    </insert>
+
+    <!-- 휴가 신청 수정 -->
+    <update id="updateLeaveRequest" parameterType="com.board.plan.leave.model.LeaveRequest">
+        UPDATE leave_requests SET
+            leave_type = #{leaveType},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            request_reason = #{requestReason},
+            updated_at = NOW()
+        WHERE request_id = #{requestId}
+    </update>
+
+    <!-- 휴가 신청 취소 -->
+    <delete id="deleteLeaveRequest">
+        DELETE FROM leave_requests WHERE request_id = #{requestId}
+    </delete>
+
+    <!-- 휴가 신청 조회 (ID로) -->
+    <select id="selectLeaveRequestById" resultMap="leaveRequestResultMap">
+        SELECT * FROM leave_requests WHERE request_id = #{requestId}
+    </select>
+
+    <!-- 내 휴가 신청 목록 조회 -->
+    <select id="selectMyLeaveRequests" resultMap="leaveRequestResultMap">
+        SELECT lr.*, m.name as member_name
+        FROM leave_requests lr
+        INNER JOIN members m ON lr.member_id = m.member_id
+        WHERE lr.member_id = #{memberId}
+        ORDER BY lr.request_date DESC
+    </select>
+
+    <!-- 모든 휴가 신청 목록 조회 -->
+    <select id="selectAllLeaveRequests" resultMap="leaveRequestResultMap">
+        SELECT lr.*, m.name as member_name
+        FROM leave_requests lr
+        INNER JOIN members m ON lr.member_id = m.member_id
+        <where>
+            <if test="status != null and status != ''">
+                lr.status = #{status}
+            </if>
+            <if test="startDate != null and endDate != null">
+                AND lr.start_date BETWEEN #{startDate} AND #{endDate}
+            </if>
+        </where>
+        ORDER BY lr.request_date DESC
+    </select>
+
+    <!-- 휴가 신청 상태 업데이트 -->
+    <update id="updateLeaveRequestStatus">
+        UPDATE leave_requests SET
+            status = #{status},
+            <if test="approvalId != null">
+                approval_id = #{approvalId},
+            </if>
+            updated_at = NOW()
+        WHERE request_id = #{requestId}
+    </update>
+
+    <!-- 휴가 승인/반려 정보 생성 -->
+    <insert id="insertLeaveApproval" parameterType="com.board.plan.leave.model.LeaveApproval">
+        INSERT INTO leave_approvals (
+            approval_id, request_id, approver_id, approval_status,
+            approval_reason, approval_date, created_at, updated_at
+        ) VALUES (
+            #{approvalId}, #{requestId}, #{approverId}, #{approvalStatus},
+            #{approvalReason}, #{approvalDate}, NOW(), NOW()
+        )
+    </insert>
+
+    <!-- 휴가 승인/반려 정보 조회 -->
+    <select id="selectLeaveApprovalByRequestId" resultMap="leaveApprovalResultMap">
+        SELECT la.*, m.name as approver_name
+        FROM leave_approvals la
+        INNER JOIN members m ON la.approver_id = m.member_id
+        WHERE la.request_id = #{requestId}
+    </select>
+
+    <!-- 휴가 사용 이력 조회 -->
+    <select id="selectLeaveHistory" resultMap="leaveRequestResultMap">
+        SELECT lr.*, m.name as member_name
+        FROM leave_requests lr
+        INNER JOIN members m ON lr.member_id = m.member_id
+        WHERE lr.status = '승인'
+        <if test="memberId != null">
+            AND lr.member_id = #{memberId}
+        </if>
+        <if test="year != null">
+            AND YEAR(lr.start_date) = #{year}
+        </if>
+        ORDER BY lr.start_date DESC
+    </select>
+
+    <!-- 휴가 신청 소유자 확인 -->
+    <select id="isLeaveRequestOwner" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM leave_requests
+        WHERE request_id = #{requestId} AND member_id = #{memberId}
+    </select>
+
+    <!-- 기간별 휴가 통계 조회 -->
+    <select id="selectLeaveStatistics" resultMap="leaveRequestResultMap">
+        SELECT lr.*, m.name as member_name
+        FROM leave_requests lr
+        INNER JOIN members m ON lr.member_id = m.member_id
+        WHERE lr.start_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY lr.start_date ASC
+    </select>
+
+</mapper>
+

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.board.plan.role.mapper.RoleMapper">
+
+    <!-- Role ResultMap -->
+    <resultMap id="roleResultMap" type="com.board.plan.role.model.Role">
+        <id column="role_id" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="description" property="description"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- Permission ResultMap -->
+    <resultMap id="permissionResultMap" type="com.board.plan.role.model.Permission">
+        <id column="permission_id" property="permissionId"/>
+        <result column="permission_name" property="permissionName"/>
+        <result column="description" property="description"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- RolePermission ResultMap -->
+    <resultMap id="rolePermissionResultMap" type="com.board.plan.role.model.RolePermission">
+        <id column="role_permission_id" property="rolePermissionId"/>
+        <result column="role_id" property="roleId"/>
+        <result column="permission_id" property="permissionId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- === 역할 관리 === -->
+
+    <!-- 역할 생성 -->
+    <insert id="insertRole" parameterType="com.board.plan.role.model.Role">
+        INSERT INTO roles (role_id, role_name, description, created_at, updated_at)
+        VALUES (#{roleId}, #{roleName}, #{description}, NOW(), NOW())
+    </insert>
+
+    <!-- 역할 수정 -->
+    <update id="updateRole" parameterType="com.board.plan.role.model.Role">
+        UPDATE roles SET
+            role_name = #{roleName},
+            description = #{description},
+            updated_at = NOW()
+        WHERE role_id = #{roleId}
+    </update>
+
+    <!-- 역할 삭제 -->
+    <delete id="deleteRole">
+        DELETE FROM roles WHERE role_id = #{roleId}
+    </delete>
+
+    <!-- 역할 조회 (ID로) -->
+    <select id="selectRoleById" resultMap="roleResultMap">
+        SELECT * FROM roles WHERE role_id = #{roleId}
+    </select>
+
+    <!-- 모든 역할 목록 조회 -->
+    <select id="selectAllRoles" resultMap="roleResultMap">
+        SELECT * FROM roles ORDER BY created_at ASC
+    </select>
+
+    <!-- === 권한 관리 === -->
+
+    <!-- 권한 생성 -->
+    <insert id="insertPermission" parameterType="com.board.plan.role.model.Permission">
+        INSERT INTO permissions (permission_id, permission_name, description, created_at, updated_at)
+        VALUES (#{permissionId}, #{permissionName}, #{description}, NOW(), NOW())
+    </insert>
+
+    <!-- 권한 수정 -->
+    <update id="updatePermission" parameterType="com.board.plan.role.model.Permission">
+        UPDATE permissions SET
+            permission_name = #{permissionName},
+            description = #{description},
+            updated_at = NOW()
+        WHERE permission_id = #{permissionId}
+    </update>
+
+    <!-- 권한 삭제 -->
+    <delete id="deletePermission">
+        DELETE FROM permissions WHERE permission_id = #{permissionId}
+    </delete>
+
+    <!-- 권한 조회 (ID로) -->
+    <select id="selectPermissionById" resultMap="permissionResultMap">
+        SELECT * FROM permissions WHERE permission_id = #{permissionId}
+    </select>
+
+    <!-- 모든 권한 목록 조회 -->
+    <select id="selectAllPermissions" resultMap="permissionResultMap">
+        SELECT * FROM permissions ORDER BY created_at ASC
+    </select>
+
+    <!-- === 역할-권한 매핑 관리 === -->
+
+    <!-- 역할에 권한 할당 -->
+    <insert id="insertRolePermission" parameterType="com.board.plan.role.model.RolePermission">
+        INSERT INTO role_permissions (role_id, permission_id, created_at, updated_at)
+        VALUES (#{roleId}, #{permissionId}, NOW(), NOW())
+    </insert>
+
+    <!-- 역할의 권한 제거 -->
+    <delete id="deleteRolePermission">
+        DELETE FROM role_permissions
+        WHERE role_id = #{roleId} AND permission_id = #{permissionId}
+    </delete>
+
+    <!-- 역할의 모든 권한 제거 -->
+    <delete id="deleteAllRolePermissions">
+        DELETE FROM role_permissions WHERE role_id = #{roleId}
+    </delete>
+
+    <!-- 역할의 권한 목록 조회 -->
+    <select id="selectPermissionsByRoleId" resultMap="permissionResultMap">
+        SELECT p.*
+        FROM permissions p
+        INNER JOIN role_permissions rp ON p.permission_id = rp.permission_id
+        WHERE rp.role_id = #{roleId}
+        ORDER BY p.permission_name ASC
+    </select>
+
+    <!-- 회원의 권한 목록 조회 (역할을 통해) -->
+    <select id="selectPermissionsByMemberId" resultMap="permissionResultMap">
+        SELECT DISTINCT p.*
+        FROM permissions p
+        INNER JOIN role_permissions rp ON p.permission_id = rp.permission_id
+        INNER JOIN members m ON rp.role_id = m.role_id
+        WHERE m.member_id = #{memberId}
+        ORDER BY p.permission_name ASC
+    </select>
+
+    <!-- 권한 중복 확인 -->
+    <select id="existsRolePermission" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM role_permissions
+        WHERE role_id = #{roleId} AND permission_id = #{permissionId}
+    </select>
+
+    <!-- 역할 이름 중복 확인 -->
+    <select id="existsRoleName" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM roles
+        WHERE role_name = #{roleName}
+        <if test="excludeRoleId != null">
+            AND role_id != #{excludeRoleId}
+        </if>
+    </select>
+
+    <!-- 권한 이름 중복 확인 -->
+    <select id="existsPermissionName" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM permissions
+        WHERE permission_name = #{permissionName}
+        <if test="excludePermissionId != null">
+            AND permission_id != #{excludePermissionId}
+        </if>
+    </select>
+
+</mapper>
+

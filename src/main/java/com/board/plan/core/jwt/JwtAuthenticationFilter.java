@@ -45,9 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .roleId(roleId)
                         .build();
                 
-                // 권한 생성
+                // 권한 생성 (역할 ID를 그대로 사용하고 ROLE_ 형식도 함께 추가)
                 List<SimpleGrantedAuthority> authorities = List.of(
-                    new SimpleGrantedAuthority("ROLE_" + roleId.replace("role-", "").toUpperCase())
+                    new SimpleGrantedAuthority(roleId), // role-admin, role-manager, role-user
+                    new SimpleGrantedAuthority("ROLE_" + roleId.replace("role-", "").toUpperCase()) // ROLE_ADMIN, ROLE_MANAGER, ROLE_USER
                 );
                 
                 // Authentication 객체 생성
