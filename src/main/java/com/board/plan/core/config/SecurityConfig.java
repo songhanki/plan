@@ -3,6 +3,7 @@ package com.board.plan.core.config;
 import com.board.plan.core.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -26,6 +27,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "app.security.dev.swagger-test-enabled", havingValue = "false", matchIfMissing = true)
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -56,7 +58,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/members").permitAll() // 회원가입만 허용
                 
                 // Swagger/OpenAPI 문서 접근 허용
-                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html**").permitAll()
                 
                 // 정적 리소스 접근 허용
                 .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**").permitAll()
